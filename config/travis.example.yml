@@ -1,0 +1,166 @@
+#common settings for postgresql database
+defaults_db: &defaults_db
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  min_messages: warning
+  username: postgres
+  password: <%= ENV['POSTGRESQL_ENV_POSTGRES_PASSWORD'] %>
+  host: <%= ENV['POSTGRESQL_PORT_5432_TCP_ADDR'] %>
+  port: <%= ENV['POSTGRESQL_PORT_5432_TCP_PORT'] %>
+
+
+#common settings for amqp
+defaults_amqp: &defaults_amqp
+  host: <%= ENV['RABBITMQ_PORT_5672_TCP_ADDR'] %>
+  port: <%= ENV['RABBITMQ_PORT_5672_TCP_PORT'] %>
+  username: guest
+  password: guest
+  vhost: <%= ENV['FINAL_AMQP_VSHOST'] %>
+
+defaults_sentry: &defaults_sentry
+  dsn: empty
+
+
+#############################################################################################
+development:
+  log_level: :warn
+  origin_whitelist: '*'
+  allowed_origin: '*'
+  log_file_storage_path: <%= ENV['FINAL_OUTPUT_LOGS_DIR'] %>
+  database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_DATABASE'] %>
+  logs_database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_LOGS_DATABASE'] %>
+  amqp:
+    <<: *defaults_amqp
+  redis:
+    url: redis://<%= ENV['REDIS_PORT_6379_TCP_ADDR'] %>:<%= ENV['REDIS_PORT_6379_TCP_PORT'] %>/1
+#sentry:
+#  <<: *
+
+#specific settings for travis logs
+  logs:
+    archive: true
+    purge: true
+    threads: 10
+    intervals:
+      regular: 3
+      vacuum: 10
+      force: 14400
+      purge: 6
+  log_storage_provider: file_storage
+  file_storage:
+    root_path: <%= ENV['FINAL_OUTPUT_LOGS_DIR'] %>
+
+#specific settings for travis hub
+  queue:
+    limit:
+      default: 500
+    interval: 3
+  #Each job has assigned particular queue[travis-core/lib/travis/model/job/queue.rb] against attributes in queues array.
+  queues:
+    - queue: builds.linux
+      os: linux
+    - queue: builds.windows.static
+      os: windows_static
+    - queue: builds.windows.labmanager
+      os: windows
+    - queue: builds.osx
+      os: osx
+    - queue: builds.example
+      slug:     lksv/best_repo
+      owner:    lksvXX
+      language: rubyXX
+      os:       specialOS
+      sudo:
+      education:
+  encryption:
+    key: your encryption key
+  stash:
+    source_host: stash.yourcompany.com
+    source_port: 443
+    source_protocol: https
+    git_source_protocol: ssh
+    git_source_port: 8085
+    api_url: https://stash.yourcompany.com/rest/api/1.0/
+    oauth:
+      secret_path: /path/to/your/stash/private/key
+      key: 'your oauth key'
+    ssl:
+      verify: false
+
+
+
+#############################################################################################
+production:
+  log_level: :warn
+  origin_whitelist: '*'
+  allowed_origin: '*'
+  log_file_storage_path: <%= ENV['FINAL_OUTPUT_LOGS_DIR'] %>
+  database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_DATABASE'] %>
+  logs_database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_LOGS_DATABASE'] %>
+  amqp:
+    <<: *defaults_amqp
+  redis:
+    url: redis://<%= ENV['REDIS_PORT_6379_TCP_ADDR'] %>:<%= ENV['REDIS_PORT_6379_TCP_PORT'] %>/10
+
+#specific settings for travis hub
+  queue:
+    limit:
+      default: 500
+    interval: 3
+  #Each job has assigned particular queue[travis-core/lib/travis/model/job/queue.rb] against attributes in queues array.
+  queues:
+    - queue: builds.linux
+      os: linux
+    - queue: builds.windows.static
+      os: windows_static
+    - queue: builds.windows.labmanager
+      os: windows
+    - queue: builds.osx
+      os: osx
+    - queue: builds.example
+      slug:     lksv/best_repo
+      owner:    lksvXX
+      language: rubyXX
+      os:       specialOS
+      sudo:
+      education:
+  encryption:
+    key: your encryption key
+  stash:
+    source_host: stash.yourcompany.com
+    source_port: 443
+    source_protocol: https
+    git_source_protocol: ssh
+    git_source_port: 8085
+    api_url: https://stash.yourcompany.com/rest/api/1.0/
+    oauth:
+      secret_path: /path/to/your/stash/private/key
+      key: 'your oauth key'
+    ssl:
+      verify: false
+
+
+#############################################################################################
+test:
+  log_file_storage_path: /tmp
+  database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_DATABASE'] %>
+  logs_database:
+    <<: *defaults_db
+    database: <%= ENV['FINAL_LOGS_DATABASE'] %>
+  amqp:
+    <<: *defaults_amqp
+
+#travis hub specific
+  domain: test.travisci.org
+

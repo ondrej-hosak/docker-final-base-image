@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source ~/env.sh
+
+cd ~/$PROJECT_NAME
+
+~/prepare_version.sh
+
+if ! mountpoint -q ~/$PROJECT_NAME; then
+
+  for file in travis.yml worker.yml; do
+    if [ ! -f "$HOME/${PROJECT_NAME}/config/$file" -a -f "/$file" ] ; then
+      ruby ~/convert_config.rb < "/$file" > "$HOME/$PROJECT_NAME/config/$file"
+    fi
+  done
+
+  for file in database.yml config.yml; do
+    if [ -f "/$file" ] ; then
+      ruby ~/convert_config.rb < "/$file" > "$HOME/$PROJECT_NAME/config/$file"
+    fi
+  done
+
+fi
+
+~/init.sh
+
+if [ -n "$1" ] ; then
+  exec "$@"
+else
+  foreman start
+fi
+
