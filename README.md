@@ -1,28 +1,8 @@
 # Dockerized final-api application
 
 
-## create base image
-     cd base-image
-     sudo docker build -t "final-ci/base-image:latest" .
-     cd ..
-
-## create other app images
-     cd travis-logs
-     #create travis-logs image
-     sudo docker build -t "final-ci/travis-logs:latest" .
-     cd ../travis-hub
-
-     #create travis-hub image
-     sudo docker build -t "final-ci/travis-hub:latest" .
-     cd ../final-api
-
-     #create final-api image
-     sudo docker build -t "final-ci/final-api:latest" .
-     cd ../travis-worker
-
-     #create travis-worker image
-     sudo docker build -t "final-ci/travis-worker:latest" .
-     cd ..
+## create images
+     make   #create all images
 
 ## prepare custom configs
      cp config/config.example.yml config/config.yml
