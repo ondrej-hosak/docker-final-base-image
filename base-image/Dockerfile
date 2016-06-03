@@ -35,11 +35,11 @@ RUN echo 'gem: --no-rdoc --no-ri' >> /home/travis/.gemrc
 
 RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 #RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2,2.2.2,2.1.5,jruby-1.7.16,jruby-1.7.18,jruby-1.7.19 --gems=foreman
+RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2.2,2.1.5,jruby-1.7.16,jruby-1.7.18,jruby-1.7.19 --gems=foreman
 
 # because invalid .gemspec file in remote gem https://github.com/joshk/sshjr/issues/3
 # old version of bundler does not validate .gemspec file
-RUN /bin/bash -lc 'source /home/travis/.rvm/scripts/rvm ; rvm 1.7.16,1.7.18,1.7.19,2.1.5,2.2.1,2.2.2 do gem install bundler -v 1.9.4'
+RUN /bin/bash -lc 'source /home/travis/.rvm/scripts/rvm ; rvm 1.7.16,1.7.18,1.7.19,2.1.5,2.2.2 do gem install bundler -v 1.9.4'
 
 ENV FINAL_VERSION master
 
