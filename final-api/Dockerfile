@@ -16,5 +16,8 @@ RUN sudo apt-get update && \
 ENV PORT 55555
 EXPOSE $PORT
 
-CMD [ "/bin/bash", "-lc", "/home/travis/start"]
+ADD id_rsa /home/travis/.ssh/
+RUN sudo chown travis:travis  ~/.ssh/id_rsa
+RUN ssh-keyscan github.com > ~/.ssh/known_hosts
 
+CMD [ "/bin/bash", "-lc", "/home/travis/start" ]
