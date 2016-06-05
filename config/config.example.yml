@@ -35,7 +35,7 @@ repos:
     provider: stash
     owner_name: ATT
   - name: build-scripts
-  url: https://stash.yourcompany.com/projects/STS/repos/test-repo/browse
+    url: https://stash.yourcompany.com/projects/STS/repos/test-repo/browse
     active: true
     private: false
     provider: stash
