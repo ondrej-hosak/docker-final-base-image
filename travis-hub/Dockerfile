@@ -2,7 +2,7 @@ FROM       final-ci/base-image:latest
 MAINTAINER Ivo Reznicek <ireznice@googlemail.com>
 
 ENV PROJECT_NAME travis-hub
-ENV GIT_URL https://github.com/final-ci/$PROJECT_NAME.git
+ENV GIT_URL https://github.com/AVGTechnologies/$PROJECT_NAME.git
 
 COPY [ "./assets/*", "/home/travis/" ]
 
