@@ -16,4 +16,3 @@ api: baseimage
 
 worker: baseimage
 	docker build -t "final-ci/travis-worker:latest" travis-worker
-
