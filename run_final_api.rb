@@ -1,24 +1,52 @@
 require 'optparse'
 
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: run_final_api.rb environment local_path"
+def get_options
+  ARGV.push('-h') if ARGV.empty?
+  options = {}
 
-  opts.on("-e ENVIRONMENT","--environment ENVIRONMENT", "running environment") do |v|
-    options[:environment] = v
-  end
-  opts.on("-p PATH", "--path PATH", "local path for project") do |v|
-    options[:local_path] = v
-  end
-end.parse!
+  OptionParser.new do |opts|
+    opts.banner = "Usage: run_final_api.rb [--environment ENVIRONMENT] [--sudo] <local path to final-api>"
 
-options[:environment] ||= 'development'
-unless options[:local_path]
-  puts "Run -h for info"
+    opts.on("-e ENVIRONMENT","--environment ENVIRONMENT", "running environment") do |v|
+      options[:environment] = v
+    end
+    opts.on("--sudo", "forces sudo for docker commands") do |v|
+      options[:sudo] = v
+    end
+  end.parse!
+
+  options[:local_path] = ARGV[0]
+  options[:environment] ||= 'development'
+  options
+end
+
+def validate_input(options)
+  validate_config_presence(options)
+end
+
+def validate_config_presence(options)
+  raise "Local path to final-api not specified" if options[:local_path].nil?
+
+  travis_config_path = File.join(options[:local_path], 'config/travis.yml')
+
+  raise "Couldn't locate #{travis_config_path}" unless File.exists?(travis_config_path)
+end
+
+def get_command_prefix(options)
+  "sudo" if options[:sudo]
+end
+
+options = get_options
+begin
+  validate_input(options)
+rescue Exception => e
+  p e
   exit 1
 end
 
-system 'make api'
-system 'docker run --name final-redis -d redis:3.0.3'
-system "docker run --link final-redis:redis --name final-api --rm -v #{options[:local_path]}:/home/travis/final-api -p 55555:55555 -e ENV=#{options[:environment]} -ti 'final-ci/final-api:latest'"
-system 'docker rm -f final-redis'
+sudo = get_command_prefix(options)
+system "#{sudo} make"
+system "#{sudo} docker run --name final-redis -d redis:3.0.3"
+system "#{sudo} docker run --link final-redis:redis --name final-api --rm -v #{options[:local_path]}:/home/travis/final-api -p 55555:55555 -e ENV=#{options[:environment]} -ti 'final-ci/final-api:latest'"
+system "#{sudo} docker rm -f final-redis"
+

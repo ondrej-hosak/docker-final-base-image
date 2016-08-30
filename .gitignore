@@ -1,5 +1,0 @@
-config/config.yml
-config/travis.yml
-config/worker.yml
-config/worker-*
-config/id_rsa*
