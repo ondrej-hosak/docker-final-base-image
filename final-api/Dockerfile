@@ -1,12 +1,9 @@
 FROM       final-ci/base-image:latest
-MAINTAINER Ivo Reznicek <ireznice@googlemail.com>
+MAINTAINER Automation Development team <eng.op.autodev@avg.com>
 
 ENV PROJECT_NAME final-api
-ENV GIT_URL https://github.com/AVGTechnologies/$PROJECT_NAME.git
 
 USER travis
-
-RUN [ "/bin/bash", "-lc", "/home/travis/prepare_version.sh" ]
 
 WORKDIR /home/travis/$PROJECT_NAME
 
@@ -16,4 +13,5 @@ RUN sudo apt-get update && \
 ENV PORT 55555
 EXPOSE $PORT
 
-CMD [ "/bin/bash", "-lc", "/home/travis/start" ]
+CMD [ "/bin/bash", "-lc", "/home/travis/init.sh" ]
+
