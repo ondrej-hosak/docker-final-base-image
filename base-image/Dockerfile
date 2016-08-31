@@ -42,5 +42,5 @@ USER root
 
 COPY "./assets/*" "/home/travis/"
 
-RUN [ "chown", "travis:travis", "/home/travis/init.sh" ]
+RUN [ "chown", "travis:travis", "/home/travis/init" ]
 

@@ -13,5 +13,5 @@ RUN sudo apt-get update && \
 ENV PORT 55555
 EXPOSE $PORT
 
-CMD [ "/bin/bash", "-lc", "/home/travis/init.sh" ]
+CMD [ "/bin/bash", "-lc", "/home/travis/init" ]
 
