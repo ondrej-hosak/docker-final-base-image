@@ -1,56 +1,73 @@
 require 'optparse'
 
-def get_options
+def options
+  @options ||= {}
+end
+
+def parse_options
   ARGV.push('-h') if ARGV.empty?
-  options = {}
 
   OptionParser.new do |opts|
-    opts.banner = "Usage: run_final_api.rb [--environment ENVIRONMENT] [--sudo] <local path to final-api>"
+    opts.banner = 'Usage: run_final_api.rb [--environment ENVIRONMENT] [--sudo] <local path to final-api>'
 
-    opts.on("-e ENVIRONMENT","--environment ENVIRONMENT", "running environment") do |v|
+    opts.on('-e ENVIRONMENT","--environment ENVIRONMENT", "running environment') do |v|
       options[:environment] = v
     end
-    opts.on("-b", "--build", "ensures the script will perform build") do |v|
+    opts.on('-b', '--build', 'ensures the script will perform build') do |v|
       options[:build] = v
     end
-    opts.on("--sudo", "forces sudo for docker commands") do |v|
+    opts.on('--sudo', 'forces sudo for docker commands') do |v|
       options[:sudo] = v
     end
   end.parse!
 
   options[:local_path] = ARGV[0]
   options[:environment] ||= 'development'
-  options
 end
 
-def validate_config_presence(options)
-  raise "Local path to final-api not specified" if options[:local_path].nil?
+def validate_config_presence
+  raise 'Local path to final-api not specified' if options[:local_path].nil?
 
   travis_config_path = File.join(options[:local_path], 'config/travis.yml')
 
-  raise "Couldn't locate #{travis_config_path}" unless File.exists?(travis_config_path)
+  raise "Couldn't locate #{travis_config_path}" unless File.exist?(travis_config_path)
 end
 
-def get_command_prefix(options)
-  "sudo" if options[:sudo]
+def sudo
+  'sudo' if @options[:sudo]
 end
 
-options = get_options
-begin
-  validate_config_presence(options)
-rescue Exception => e
-  p e
-  exit 1
+def build_final_api
+  system *[sudo, 'make'].compact
+  system *[sudo, 'docker', 'rm', '-f', 'final-redis'].compact
+  system *[sudo, 'docker', 'run', '--name', 'final-redis', '-d', 'redis:3.0.3'].compact
+  system *[sudo, 'docker', 'rm', '-f','final-api'].compact
+
+  system *[
+    sudo, 'docker', 'run',
+    '--link', 'final-redis:redis',
+    '--name', 'final-api',
+    '-v', "#{options[:local_path]}:/home/travis/final-api",
+    '-p', '55555:55555',
+    '-e', "ENV=#{options[:environment]}",
+    'final-ci/final-api:latest'
+  ].compact
 end
 
-sudo = get_command_prefix(options)
-system "#{sudo} make"
-system "#{sudo} docker run --name final-redis -d redis:3.0.3"
+def final_api_exist?
+  system *[sudo, 'docker', 'inspect', 'final-api'].compact
+end
+
+parse_options
+
+validate_config_presence
+
 if options[:build]
-  system "#{sudo} docker rm final-api"
-  system "#{sudo} docker run --link final-redis:redis --name final-api -v #{options[:local_path]}:/home/travis/final-api -p 55555:55555 -e ENV=#{options[:environment]} -ti 'final-ci/final-api:latest'"
+  build_final_api
 else
-  system "#{sudo} docker start -i final-api"
-  system "#{sudo} docker rm -f final-redis"
+  unless final_api_exist?
+    build_final_api
+    exit 0
+  end
+  system *[sudo, 'docker', 'start', '-i', 'final-api'].compact
 end
-
