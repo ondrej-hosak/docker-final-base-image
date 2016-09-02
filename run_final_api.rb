@@ -10,6 +10,9 @@ def get_options
     opts.on("-e ENVIRONMENT","--environment ENVIRONMENT", "running environment") do |v|
       options[:environment] = v
     end
+    opts.on("-b", "--build", "ensures the script will perform build") do |v|
+      options[:build] = v
+    end
     opts.on("--sudo", "forces sudo for docker commands") do |v|
       options[:sudo] = v
     end
@@ -18,10 +21,6 @@ def get_options
   options[:local_path] = ARGV[0]
   options[:environment] ||= 'development'
   options
-end
-
-def validate_input(options)
-  validate_config_presence(options)
 end
 
 def validate_config_presence(options)
@@ -38,7 +37,7 @@ end
 
 options = get_options
 begin
-  validate_input(options)
+  validate_config_presence(options)
 rescue Exception => e
   p e
   exit 1
@@ -47,6 +46,11 @@ end
 sudo = get_command_prefix(options)
 system "#{sudo} make"
 system "#{sudo} docker run --name final-redis -d redis:3.0.3"
-system "#{sudo} docker run --link final-redis:redis --name final-api --rm -v #{options[:local_path]}:/home/travis/final-api -p 55555:55555 -e ENV=#{options[:environment]} -ti 'final-ci/final-api:latest'"
-system "#{sudo} docker rm -f final-redis"
+if options[:build]
+  system "#{sudo} docker rm final-api"
+  system "#{sudo} docker run --link final-redis:redis --name final-api -v #{options[:local_path]}:/home/travis/final-api -p 55555:55555 -e ENV=#{options[:environment]} -ti 'final-ci/final-api:latest'"
+else
+  system "#{sudo} docker start -i final-api"
+  system "#{sudo} docker rm -f final-redis"
+end
 
