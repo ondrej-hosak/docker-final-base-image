@@ -14,5 +14,7 @@ developers.
 * [Install Docker](https://docs.docker.com/engine/installation/linux/)
 * Clone [Final-API](https://github.com/AVGTechnologies/final-api)
 * Adjust the Final-API configs
+* Prepate tsd validator in your final-api project
+* Prepare env file in your final-api project
+* Copy necessary certificates to ./certs
 * Run the run_final_api.rb script to launch the docker for you
-

@@ -15,6 +15,7 @@ RUN apt-get update && \
     apt-get install -y \
       build-essential \
       curl \
+      mono-complete \
       git-core \
       libssl-dev \
       libreadline-dev \
@@ -40,7 +41,10 @@ RUN /bin/bash -lc 'source /home/travis/.rvm/scripts/rvm ; rvm 2.1.5,2.2.2,jruby-
 
 USER root
 
+COPY "./certs/*" "/usr/local/share/ca-certificates/"
+
+RUN [ "sudo", "update-ca-certificates" ]
+
 COPY "./assets/*" "/home/travis/"
 
 RUN [ "chown", "travis:travis", "/home/travis/init" ]
-
