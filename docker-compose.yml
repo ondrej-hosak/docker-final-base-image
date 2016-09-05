@@ -1,0 +1,15 @@
+redis:
+  image: redis:3.0.3
+  restart: always
+
+api:
+ image: final-ci/final-api:latest
+ links:
+   - redis:redis
+ environment:
+   ENV: beta
+ ports:
+   - "55555:55555"
+ volumes:
+   - /Users/ondrejhosak/Desktop/Repos/final-api/config:/home/travis/final-api/config #.env and config
+   - /Users/ondrejhosak/Desktop/Repos/final-api/bin:/home/travis/final-api/bin # tsd validator

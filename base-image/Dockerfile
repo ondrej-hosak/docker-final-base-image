@@ -47,4 +47,4 @@ RUN [ "sudo", "update-ca-certificates" ]
 
 COPY "./assets/*" "/home/travis/"
 
-RUN [ "chown", "travis:travis", "/home/travis/init" ]
+RUN [ "chown", "travis:travis", "/home/travis/start" ]

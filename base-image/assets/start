@@ -11,5 +11,5 @@ bundle install
 export RAILS_ENV=${RAILS_ENV:-${ENV}}
 export RACK_ENV=${RACK_ENV:-${ENV}}
 
-. .env
+. config/.env
 foreman start
